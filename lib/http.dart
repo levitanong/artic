@@ -27,7 +27,7 @@ Future<ArticArtworkPayload> fetchArtworks() async {
 }
 
 Future<ArticArtwork> fetchArtwork(String id) async {
-  final url = "https://api.artic.edu/api/v1/artworks/$id";
+  final url = "http://api.artic.edu/api/v1/artworks/$id";
   final response = await Dio().get(url);
 
   // Using switch-case because we might want to handle other statusCodes differently
