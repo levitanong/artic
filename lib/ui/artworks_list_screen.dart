@@ -49,6 +49,9 @@ class _ArtworksListScreenState extends State<ArtworksListScreen> {
         // We should use Consumers as deep as possible.
         body: Consumer<NavStore>(
           builder: (context, navStore, child) {
+            if (artworksStore.hasError && artworksStore.exception != null) {
+              return Text(artworksStore.exception!.toString());
+            }
             if (artworksStore.hasError && artworksStore.debugResponse != null) {
               return Text(artworksStore.debugResponse!.body);
             }
