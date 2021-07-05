@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:dio/dio.dart';
-import 'package:http/http.dart' as http;
 import 'adapters.dart';
 
 Future<ArticArtworkPayload> fetchArtworks() async {
