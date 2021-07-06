@@ -15,7 +15,7 @@ class ArtworksStore extends ChangeNotifier {
   bool get hasError => _hasError;
   DioError? get exception => _exception;
 
-  void fetch() async {
+  Future<void> fetch() async {
     /// fetchArtworks already handles conversion
     /// to the right data types so we can just use it.
     try {
