@@ -37,8 +37,8 @@ class ArticArtworkThumbnail {
   factory ArticArtworkThumbnail.fromJson(Map<String, dynamic> json) {
     return ArticArtworkThumbnail(
         data: json["lqip"],
-        width: json["width"],
-        height: json["height"],
+        width: json["width"].toDouble(),
+        height: json["height"].toDouble(),
         altText: json["alt_text"]);
   }
 }
