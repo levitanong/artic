@@ -50,7 +50,7 @@ class _ArtworksListScreenState extends State<ArtworksListScreen> {
         // We should use Consumers as deep as possible.
         body: Consumer<NavStore>(
           builder: (context, navStore, child) {
-            if (artworksStore.hasError && artworksStore.exception != null) {
+            if (artworksStore.exception != null) {
               return Text(artworksStore.exception!.toString());
             }
             // null safety type promotion only happens to

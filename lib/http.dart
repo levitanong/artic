@@ -16,8 +16,11 @@ Future<ArticArtworkPayload> fetchArtworks() async {
     switch (response.statusCode) {
       case 200:
         final body = jsonDecode(response.body);
-        final articPayload = ArticArtworkPayload.fromJson(body);
-        return articPayload;
+        try { 
+          return ArticArtworkPayload.fromJson(body);
+        } catch (e) {
+          throw DeserializationException(message: e.toString());
+        }
       default:
         throw response;
     }

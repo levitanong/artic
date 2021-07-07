@@ -1,3 +1,12 @@
+class DeserializationException implements Exception {
+  final String message;
+  DeserializationException({required this.message});
+  @override
+  String toString() {
+    return "There was a problem deserializing data: $message";
+  }
+}
+
 class ArticArtworkPagination {
   final int total;
   final int limit;
