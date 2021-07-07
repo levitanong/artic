@@ -2,7 +2,6 @@ import 'package:artic/adapters.dart';
 import 'package:artic/routing.dart';
 import 'package:artic/stores/artworks.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 
 class ArtworksListScreen extends StatefulWidget {
@@ -23,18 +22,7 @@ class _ArtworksListScreenState extends State<ArtworksListScreen> {
     // causes a rebuild. Here we register safeRefresh.
     artworksStore.addListener(safeRefresh);
     // trigger a fetch whenever state is initialized
-    artworksStore.fetch().then((value) {
-      if (mounted) {
-        showDialog(
-            context: context,
-            builder: (builder) {
-              return AlertDialog(
-                title: Text('derp'),
-                content: Text('yo'),
-              );
-            });
-      }
-    });
+    artworksStore.fetch();
 
     super.initState();
   }
