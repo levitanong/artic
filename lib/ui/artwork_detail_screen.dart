@@ -1,6 +1,7 @@
 import 'package:artic/adapters.dart';
 import 'package:artic/http.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ArtworkDetailScreen extends StatefulWidget {
   // Parametrizing ArtworkDetailScreen to accept an ID.
@@ -36,13 +37,23 @@ class _ArtworkDetailScreenState extends State<ArtworkDetailScreen> {
           }
           // "loading"
           if (!snapshot.hasData) {
-            return CircularProgressIndicator();
+            return Scaffold(
+              appBar: AppBar(
+                title: Text('Loading'),
+              ),
+              body: CircularProgressIndicator(),
+            );
           }
           return Scaffold(
             appBar: AppBar(
               title: Text(snapshot.data?.title ?? 'Artwork'),
             ),
-            body: Text(snapshot.data?.title ?? 'Artwork'),
+            body: Column(
+              children: [
+                Text(snapshot.data?.title ?? 'Artwork'),
+                Text(AppLocalizations.of(context)!.helloWorld)
+              ],
+            ),
           );
         });
   }

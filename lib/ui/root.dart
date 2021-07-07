@@ -1,7 +1,9 @@
 import 'package:artic/routing.dart';
 import 'package:artic/ui/artworks_destination.dart';
+import 'package:artic/ui/settings_destination.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class Root extends StatefulWidget {
   const Root({Key? key}) : super(key: key);
@@ -20,21 +22,22 @@ class _RootState extends State<Root> {
     Destination.artists: Icons.person,
     Destination.settings: Icons.settings
   };
-  static const destinationToNavBarLabels = {
-    Destination.artworks: 'Artworks',
-    Destination.artists: 'Artists',
-    Destination.settings: 'Settings'
-  };
   @override
   Widget build(BuildContext context) {
     /// This is how we grab navStore from Widget descendant of
     /// ChangeNotifierProvider.
+    final destinationToNavBarLabels = {
+      Destination.artworks:
+          AppLocalizations.of(context)?.artworks ?? 'Artworks',
+      Destination.artists: AppLocalizations.of(context)?.artists ?? 'Artists',
+      Destination.settings: 'Settings'
+    };
     return Consumer<NavStore>(builder: (context, navStore, child) {
       /// These Text widgets will be replaced with the appropriate Widgets.
       final destinationWidgets = [
         ArtworksDestination(),
         Text('Artists'),
-        Text('Settings'),
+        SettingsDestination(),
       ];
 
       /// selectedDestination is an enum of type Destination,
