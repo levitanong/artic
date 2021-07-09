@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:artic/stores/main.dart';
 import 'package:artic/ui/root.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -68,19 +71,20 @@ class NavStore extends ChangeNotifier {
 class ArticRouterDelegate extends RouterDelegate<NavRoute>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<NavRoute> {
   /// The NavStore, a.k.a. navigation state.
-  NavStore navStore = NavStore();
+  MainStore mainStore;
 
   /// I'm actually not sure why this has to be overridden, but let's let that slide for now.
   final GlobalKey<NavigatorState> navigatorKey;
 
   /// This is the initializer list syntax that sets fields
   /// before the constructor body runs.
-  ArticRouterDelegate() : navigatorKey = GlobalKey<NavigatorState>() {
+  ArticRouterDelegate(this.mainStore)
+      : navigatorKey = GlobalKey<NavigatorState>() {
     /// The aforementioned constructor body.
     /// Both NavStore and ArticRouterDelegate extend ChangeNotifier,
     /// and this basically makes it so that any change in navStore
     /// causes ArticRouterDelegate to also notifyListeners.
-    navStore.addListener(notifyListeners);
+    mainStore.navState.addListener(notifyListeners);
   }
 
   /// This is considered an optional override,
@@ -88,20 +92,22 @@ class ArticRouterDelegate extends RouterDelegate<NavRoute>
   /// make the address bar reflect our navigation state.
   @override
   NavRoute? get currentConfiguration {
+    print("get currentConfiguration: ${Random().nextInt(10)}");
+
     /// We'll go through all the possible destinations
     /// in navStore, then determine we're looking at a specific entity or not.
-    switch (navStore.selectedDestination) {
+    switch (mainStore.navState.selectedDestination) {
       case Destination.artworks:
-        if (navStore.selectedArtworkId != null) {
+        if (mainStore.navState.selectedArtworkId != null) {
           /// ArtworkRoute is a subclass of NavRoute.
-          return ArtworkRoute(id: navStore.selectedArtworkId!);
+          return ArtworkRoute(id: mainStore.navState.selectedArtworkId!);
         } else {
           return ArtworksRoute();
         }
       case Destination.artists:
-        if (navStore.selectedArtistId != null) {
+        if (mainStore.navState.selectedArtistId != null) {
           /// Again, ArtistRoute is a subclass of NavRoute
-          return ArtistRoute(id: navStore.selectedArtistId!);
+          return ArtistRoute(id: mainStore.navState.selectedArtistId!);
         } else {
           return ArtistsRoute();
         }
@@ -114,7 +120,7 @@ class ArticRouterDelegate extends RouterDelegate<NavRoute>
   Future<void> setNewRoutePath(NavRoute configuration) async {
     /// Because we've said all NavRoutes have destination,
     /// we can immediately set this value.
-    navStore.selectedDestination = configuration.destination;
+    mainStore.navState.selectedDestination = configuration.destination;
 
     /// I know, if else if else if is really tedious,
     /// but switching on the runtimeType doesn't implicitly cast
@@ -122,13 +128,13 @@ class ArticRouterDelegate extends RouterDelegate<NavRoute>
     if (configuration is ArtworksRoute) {
       /// It's important to null this field because this is the only
       /// thing that makes Artworks and Artwork distinct from each other.
-      navStore.selectedArtworkId = null;
+      mainStore.navState.selectedArtworkId = null;
     } else if (configuration is ArtworkRoute) {
-      navStore.selectedArtworkId = configuration.id;
+      mainStore.navState.selectedArtworkId = configuration.id;
     } else if (configuration is ArtistsRoute) {
-      navStore.selectedArtistId = null;
+      mainStore.navState.selectedArtistId = null;
     } else if (configuration is ArtistRoute) {
-      navStore.selectedArtistId = configuration.id;
+      mainStore.navState.selectedArtistId = configuration.id;
     } else if (configuration is SettingsRoute) {
       /// Actually there's nothing SettingsRoute specific for now.
       /// But we'll keep it here just in case.
@@ -139,26 +145,21 @@ class ArticRouterDelegate extends RouterDelegate<NavRoute>
   Widget build(BuildContext context) {
     /// We're going to use navStore a lot,
     /// so use ChangeNotifierProvider, passing in navStore.
-    return ChangeNotifierProvider(
-      create: (context) => navStore,
+    return Navigator(
+      /// We initialized this earlier
+      key: navigatorKey,
 
-      /// Navigator 2.0!
-      child: Navigator(
-        /// We initialized this earlier
-        key: navigatorKey,
+      /// Yes, just one page. `pages` needs to just be a list of `Page`s.
+      /// `MaterialPage` is a subclass of `Page`.
+      /// We're starting small by just making the child a Text Widget.
+      pages: [MaterialPage(child: Root())],
 
-        /// Yes, just one page. `pages` needs to just be a list of `Page`s.
-        /// `MaterialPage` is a subclass of `Page`.
-        /// We're starting small by just making the child a Text Widget.
-        pages: [MaterialPage(child: Root())],
-
-        /// This is actually entirely vestigial because
-        /// we're never going to pop here.
-        /// Our stack can only be one level deep.
-        /// We're keeping this here just in case we need it.
-        /// It does no real harm.
-        onPopPage: (route, result) => route.didPop(result),
-      ),
+      /// This is actually entirely vestigial because
+      /// we're never going to pop here.
+      /// Our stack can only be one level deep.
+      /// We're keeping this here just in case we need it.
+      /// It does no real harm.
+      onPopPage: (route, result) => route.didPop(result),
     );
   }
 }

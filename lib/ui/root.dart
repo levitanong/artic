@@ -1,4 +1,5 @@
 import 'package:artic/routing.dart';
+import 'package:artic/stores/main.dart';
 import 'package:artic/ui/artworks_destination.dart';
 import 'package:artic/ui/settings_destination.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +33,10 @@ class _RootState extends State<Root> {
       Destination.artists: AppLocalizations.of(context)?.artists ?? 'Artists',
       Destination.settings: 'Settings'
     };
-    return Consumer<NavStore>(builder: (context, navStore, child) {
+    final mainStore = Provider.of<MainStore>(context, listen: false);
+    return Selector<MainStore, Destination>(selector: (context, mainStore) {
+      return mainStore.navState.selectedDestination;
+    }, builder: (context, selectedDestination, child) {
       /// These Text widgets will be replaced with the appropriate Widgets.
       final destinationWidgets = [
         ArtworksDestination(),
@@ -42,7 +46,7 @@ class _RootState extends State<Root> {
 
       /// selectedDestination is an enum of type Destination,
       /// but we can turn this into an int via the .index getter.
-      final selectedDestinationIndex = navStore.selectedDestination.index;
+      final selectedDestinationIndex = selectedDestination.index;
       return Scaffold(
         /// Normally one would also specify an appbar here,
         /// but there's a better place to place an appbar.
@@ -72,7 +76,8 @@ class _RootState extends State<Root> {
             /// The way we implemented `items` though,
             /// we never have to worry about order.
             /// We're also using Destination.values, so they'll always match.
-            navStore.selectedDestination = Destination.values[itemIndex];
+            mainStore.navState.selectedDestination =
+                Destination.values[itemIndex];
           },
         ),
       );

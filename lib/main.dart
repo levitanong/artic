@@ -1,4 +1,5 @@
 import 'package:artic/routing.dart';
+import 'package:artic/stores/main.dart';
 import 'package:artic/stores/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -7,8 +8,11 @@ import 'package:provider/provider.dart';
 
 void main() {
   SettingsStore settingsStore = SettingsStore();
-  runApp(ChangeNotifierProvider<SettingsStore>(
-      create: (context) => settingsStore, child: App()));
+  MainStore mainStore = MainStore();
+  final app = MultiProvider(providers: [
+    ChangeNotifierProvider<MainStore>(create: (context) => mainStore)
+  ], child: App());
+  runApp(app);
 }
 
 class App extends StatefulWidget {
@@ -21,13 +25,22 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
   ArticRouteInformationParser _routeInformationParser =
       ArticRouteInformationParser();
-  ArticRouterDelegate _routerDelegate = ArticRouterDelegate();
+  late ArticRouterDelegate _routerDelegate;
+
+  @override
+  void initState() {
+    final mainStore = Provider.of<MainStore>(context, listen: false);
+    _routerDelegate = ArticRouterDelegate(mainStore);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<SettingsStore>(builder: (context, settingsStore, child) {
+    return Selector<MainStore, Locale?>(selector: (context, mainStore) {
+      return mainStore.currentLocale;
+    }, builder: (context, currentLocale, child) {
       return MaterialApp.router(
-        locale: settingsStore.currentLocale,
+        locale: currentLocale,
         routeInformationParser: _routeInformationParser,
         routerDelegate: _routerDelegate,
         localizationsDelegates: [
