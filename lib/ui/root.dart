@@ -1,5 +1,5 @@
 import 'package:artic/routing.dart';
-import 'package:artic/stores/main.dart';
+import 'package:artic/stores/main_store.dart';
 import 'package:artic/ui/artworks_destination.dart';
 import 'package:artic/ui/settings_destination.dart';
 import 'package:flutter/material.dart';

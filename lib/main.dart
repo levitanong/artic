@@ -1,13 +1,11 @@
 import 'package:artic/routing.dart';
-import 'package:artic/stores/main.dart';
-import 'package:artic/stores/settings.dart';
+import 'package:artic/stores/main_store.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 void main() {
-  SettingsStore settingsStore = SettingsStore();
   MainStore mainStore = MainStore();
   final app = MultiProvider(providers: [
     ChangeNotifierProvider<MainStore>(create: (context) => mainStore)

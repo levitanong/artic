@@ -1,10 +1,7 @@
-import 'dart:math';
-
-import 'package:artic/stores/main.dart';
+import 'package:artic/stores/main_store.dart';
 import 'package:artic/ui/root.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 enum Destination { artworks, artists, settings }
 
@@ -92,8 +89,6 @@ class ArticRouterDelegate extends RouterDelegate<NavRoute>
   /// make the address bar reflect our navigation state.
   @override
   NavRoute? get currentConfiguration {
-    print("get currentConfiguration: ${Random().nextInt(10)}");
-
     /// We'll go through all the possible destinations
     /// in navStore, then determine we're looking at a specific entity or not.
     switch (mainStore.navState.selectedDestination) {

@@ -1,5 +1,4 @@
-import 'package:artic/stores/main.dart';
-import 'package:artic/stores/settings.dart';
+import 'package:artic/stores/main_store.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

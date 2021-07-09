@@ -1,7 +1,5 @@
 import 'package:artic/adapters.dart';
-import 'package:artic/routing.dart';
-import 'package:artic/stores/artworks.dart';
-import 'package:artic/stores/main.dart';
+import 'package:artic/stores/main_store.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tuple/tuple.dart';
@@ -17,7 +15,6 @@ class _ArtworksListScreenState extends State<ArtworksListScreen> {
   @override
   void initState() {
     // trigger a fetch whenever state is initialized
-    print('am i being triggered over and over again?');
     final mainStore = Provider.of<MainStore>(context, listen: false);
     mainStore.fetch();
     super.initState();

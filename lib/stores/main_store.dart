@@ -49,8 +49,6 @@ class MainStore extends ChangeNotifier {
   }
 
   Future<void> fetch() async {
-    print('fetching artworks');
-
     /// fetchArtworks already handles conversion
     /// to the right data types so we can just use it.
     try {

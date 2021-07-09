@@ -1,5 +1,5 @@
 import 'package:artic/routing.dart';
-import 'package:artic/stores/main.dart';
+import 'package:artic/stores/main_store.dart';
 import 'package:artic/ui/artwork_detail_screen.dart';
 import 'package:artic/ui/artworks_list_screen.dart';
 import 'package:flutter/material.dart';
@@ -17,14 +17,7 @@ class _ArtworksDestinationState extends State<ArtworksDestination> {
   GlobalKey<NavigatorState>? get navigatorKey => GlobalKey<NavigatorState>();
 
   @override
-  void initState() {
-    print('artworksdestination init');
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    print('artworksdestination build');
     final mainStore = Provider.of<MainStore>(context, listen: false);
     // We need access to navStore so we know
     // whether or not an individual artwork is selected.
@@ -33,7 +26,6 @@ class _ArtworksDestinationState extends State<ArtworksDestination> {
         return mainStore.navState.selectedArtworkId;
       },
       builder: (buildContext, selectedArtworkId, artworksListScreen) {
-        print("selector builder ${selectedArtworkId}");
         // This is the second navigator we've written.
         // Navigators are actually independent from routeDelegate, etc...
         return Navigator(
@@ -54,7 +46,6 @@ class _ArtworksDestinationState extends State<ArtworksDestination> {
           // Because it actually handles the transition from
           // detail view to list view.
           onPopPage: (route, result) {
-            print('popping?');
             // Because selectedArtworkId is the only thing
             // dictating whether or not the detail view shows,
             // it naturally follows that we should set it to null
