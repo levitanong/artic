@@ -37,20 +37,24 @@ class SettingsRoute extends NavRoute {
 
 class NotFoundRoute extends NavRoute {}
 
-class SelectiveListener<T> {
-  T? cache;
+class SelectiveListener<S extends Listenable, T> extends ChangeNotifier {
+  T? _cache;
 
-  SelectiveListener({required this.selector, required this.onChange});
+  SelectiveListener({required this.store, required this.selector}) {
+    // Automatically bind the listener to the store since we get the store anyway.
+    store.addListener(() {
+      _selectivelyListen();
+    });
+  }
 
-  /// Just get the store from the outside scope.
-  final T Function() selector;
-  final void Function() onChange;
+  final S store;
+  final T Function(S store) selector;
 
-  void selectivelyListen() {
-    final selected = selector();
-    if (selected != cache) {
-      cache = selected;
-      onChange();
+  void _selectivelyListen() {
+    final selected = selector(store);
+    if (selected != _cache) {
+      _cache = selected;
+      notifyListeners();
     }
     // if they're equal, don't do anything.
   }
@@ -58,8 +62,10 @@ class SelectiveListener<T> {
 
 class ArticRouterDelegate extends RouterDelegate<NavRoute>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<NavRoute> {
-  /// The NavStore, a.k.a. navigation state.
   MainStore mainStore;
+  // late because this depends on the mainStore being passed
+  // into the constructor of SelectiveListener.
+  // So we'll need to put this in the constructor body of ArticRouterDelegate later.
   late SelectiveListener selectiveListener;
 
   /// I'm actually not sure why this has to be overridden, but let's let that slide for now.
@@ -69,21 +75,18 @@ class ArticRouterDelegate extends RouterDelegate<NavRoute>
   /// before the constructor body runs.
   ArticRouterDelegate(this.mainStore)
       : navigatorKey = GlobalKey<NavigatorState>() {
-    /// The aforementioned constructor body.
-    /// Both NavStore and ArticRouterDelegate extend ChangeNotifier,
-    /// and this basically makes it so that any change in navStore
-    /// causes ArticRouterDelegate to also notifyListeners.
-    // mainStore.addListener(navListen);
+    // The actual constructor body
+    // Now we define selectiveListener, because now we have access to mainStore.
     selectiveListener =
-        SelectiveListener<Tuple3<Destination, String?, String?>>(selector: () {
-      return Tuple3(mainStore.selectedDestination, mainStore.selectedArtworkId,
-          mainStore.selectedArtistId);
-    }, onChange: () {
-      notifyListeners();
-    });
-    mainStore.addListener(() {
-      selectiveListener.selectivelyListen();
-    });
+        SelectiveListener<MainStore, Tuple3<Destination, String?, String?>>(
+            store: mainStore,
+            selector: (MainStore store) {
+              return Tuple3(store.selectedDestination, store.selectedArtworkId,
+                  store.selectedArtistId);
+            });
+    // selectiveListener is itself a ChangeNotifier.
+    // it's changenotifiers all the way down.
+    selectiveListener.addListener(notifyListeners);
   }
 
   /// This is considered an optional override,
