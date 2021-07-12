@@ -4,7 +4,6 @@ import 'package:artic/ui/artworks_destination.dart';
 import 'package:artic/ui/settings_destination.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class Root extends StatefulWidget {
   const Root({Key? key}) : super(key: key);
@@ -14,36 +13,14 @@ class Root extends StatefulWidget {
 }
 
 class _RootState extends State<Root> {
-  /// The following two maps are inelegant because they're separate
-  /// But the only way to preserve the types is to make a NavBarData class
-  /// and that's a different kind of ugly.
-  /// For now, this ugly is simpler.
-  static const destinationToNavBarIcons = {
-    Destination.artworks: Icons.portrait,
-    Destination.artists: Icons.person,
-    Destination.settings: Icons.settings
-  };
   @override
   Widget build(BuildContext context) {
     /// This is how we grab navStore from Widget descendant of
     /// ChangeNotifierProvider.
-    final destinationToNavBarLabels = {
-      Destination.artworks:
-          AppLocalizations.of(context)?.artworks ?? 'Artworks',
-      Destination.artists: AppLocalizations.of(context)?.artists ?? 'Artists',
-      Destination.settings: 'Settings'
-    };
     final mainStore = Provider.of<MainStore>(context, listen: false);
     return Selector<MainStore, Destination>(selector: (context, mainStore) {
       return mainStore.selectedDestination;
     }, builder: (context, selectedDestination, child) {
-      /// These Text widgets will be replaced with the appropriate Widgets.
-      final destinationWidgets = [
-        ArtworksDestination(),
-        Text('Artists'),
-        SettingsDestination(),
-      ];
-
       /// selectedDestination is an enum of type Destination,
       /// but we can turn this into an int via the .index getter.
       final selectedDestinationIndex = selectedDestination.index;
@@ -51,7 +28,7 @@ class _RootState extends State<Root> {
         /// Normally one would also specify an appbar here,
         /// but there's a better place to place an appbar.
         /// Right now, body just shows whatever destination is selected.
-        body: destinationWidgets[selectedDestinationIndex],
+        body: selectedDestination.screen,
 
         /// Setting up the bottom bar.
         bottomNavigationBar: BottomNavigationBar(
@@ -60,8 +37,8 @@ class _RootState extends State<Root> {
           /// To build the BottomNavigationBarItems.
           items: Destination.values.map<BottomNavigationBarItem>((destination) {
             return BottomNavigationBarItem(
-                icon: Icon(destinationToNavBarIcons[destination]),
-                label: destinationToNavBarLabels[destination]);
+                icon: Icon(destination.icon),
+                label: destination.label(context));
           }).toList(),
 
           /// Pretty obvious what this is.

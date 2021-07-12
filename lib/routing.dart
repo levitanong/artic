@@ -1,10 +1,52 @@
 import 'package:artic/stores/main_store.dart';
+import 'package:artic/ui/artworks_destination.dart';
 import 'package:artic/ui/root.dart';
+import 'package:artic/ui/settings_destination.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:tuple/tuple.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 enum Destination { artworks, artists, settings }
+
+extension BottomBarItem on Destination {
+  /// We use the tedious switch case because it helps us with linting
+  /// when a new enum value is added to Destination.
+  IconData get icon {
+    switch (this) {
+      case Destination.artworks:
+        return Icons.portrait;
+      case Destination.artists:
+        return Icons.person;
+      case Destination.settings:
+        return Icons.settings;
+    }
+  }
+
+  /// We use the tedious switch case because it helps us with linting
+  /// when a new enum value is added to Destination.
+  String? label(BuildContext context) {
+    switch (this) {
+      case Destination.artworks:
+        return AppLocalizations.of(context)?.artworks ?? 'Artworks';
+      case Destination.artists:
+        return AppLocalizations.of(context)?.artists ?? 'Artists';
+      case Destination.settings:
+        return 'Settings';
+    }
+  }
+
+  Widget get screen {
+    switch (this) {
+      case Destination.artworks:
+        return ArtworksDestination();
+      case Destination.artists:
+        return Text('Artists');
+      case Destination.settings:
+        return SettingsDestination();
+    }
+  }
+}
 
 abstract class NavRoute {
   /// Default is Destination.artworks.
