@@ -35,7 +35,7 @@ class _RootState extends State<Root> {
     };
     final mainStore = Provider.of<MainStore>(context, listen: false);
     return Selector<MainStore, Destination>(selector: (context, mainStore) {
-      return mainStore.navState.selectedDestination;
+      return mainStore.selectedDestination;
     }, builder: (context, selectedDestination, child) {
       /// These Text widgets will be replaced with the appropriate Widgets.
       final destinationWidgets = [
@@ -76,8 +76,7 @@ class _RootState extends State<Root> {
             /// The way we implemented `items` though,
             /// we never have to worry about order.
             /// We're also using Destination.values, so they'll always match.
-            mainStore.navState.selectedDestination =
-                Destination.values[itemIndex];
+            mainStore.selectedDestination = Destination.values[itemIndex];
           },
         ),
       );

@@ -65,7 +65,7 @@ class _ArtworksListScreenState extends State<ArtworksListScreen> {
                     onTap: () {
                       // Obvious what this does.
                       // The important thing is we're using navStore.
-                      mainStore.navState.selectedArtworkId = artwork.id;
+                      mainStore.selectedArtworkId = artwork.id;
                     },
                     child: Padding(
                       padding: EdgeInsets.all(16.0),

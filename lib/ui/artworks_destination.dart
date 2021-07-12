@@ -23,7 +23,7 @@ class _ArtworksDestinationState extends State<ArtworksDestination> {
     // whether or not an individual artwork is selected.
     return Selector<MainStore, String?>(
       selector: (context, mainStore) {
-        return mainStore.navState.selectedArtworkId;
+        return mainStore.selectedArtworkId;
       },
       builder: (buildContext, selectedArtworkId, artworksListScreen) {
         // This is the second navigator we've written.
@@ -50,7 +50,7 @@ class _ArtworksDestinationState extends State<ArtworksDestination> {
             // dictating whether or not the detail view shows,
             // it naturally follows that we should set it to null
             // when we pop.
-            mainStore.navState.selectedArtworkId = null;
+            mainStore.selectedArtworkId = null;
             return route.didPop(result);
           },
         );

@@ -3,14 +3,26 @@ import 'package:artic/http.dart';
 import 'package:artic/routing.dart';
 import 'package:flutter/material.dart';
 
-class NavState extends ChangeNotifier {
+class MainStore extends ChangeNotifier {
+  Locale? _currentLocale;
+  ArticArtworkPayload? _artworksPayload;
+  Exception? _artworksException;
+
   Destination _selectedDestination = Destination.artworks;
   String? _selectedArtworkId;
   String? _selectedArtistId;
 
+  // We basically want to prevent payload to be settable from outside.
+
+  Locale? get currentLocale => _currentLocale;
+  ArticArtworkPayload? get artworksPayload => _artworksPayload;
+  Exception? get artworksException => _artworksException;
+
   Destination get selectedDestination => _selectedDestination;
   String? get selectedArtworkId => _selectedArtworkId;
   String? get selectedArtistId => _selectedArtistId;
+
+  // Setters
 
   set selectedDestination(Destination destination) {
     _selectedDestination = destination;
@@ -26,31 +38,17 @@ class NavState extends ChangeNotifier {
     _selectedArtistId = id;
     notifyListeners();
   }
-}
-
-class MainStore extends ChangeNotifier {
-  Locale? _currentLocale;
-  ArticArtworkPayload? _artworksPayload;
-  Exception? _artworksException;
-  NavState _navState = NavState();
-
-  /// We basically want to prevent payload to be settable from outside.
-  Locale? get currentLocale => _currentLocale;
-  ArticArtworkPayload? get artworksPayload => _artworksPayload;
-  Exception? get artworksException => _artworksException;
-  NavState get navState => _navState;
-
-  /// This is actually what we want:
-  /// setters that automatically invoke `notifyListeners()`
 
   set currentLocale(Locale? l) {
     _currentLocale = l;
     notifyListeners();
   }
 
+  // Imperative methods
+
   Future<void> fetch() async {
-    /// fetchArtworks already handles conversion
-    /// to the right data types so we can just use it.
+    // fetchArtworks already handles conversion
+    // to the right data types so we can just use it.
     try {
       _artworksPayload = await fetchArtworks();
     } on Error catch (t) {
@@ -61,7 +59,7 @@ class MainStore extends ChangeNotifier {
       _artworksException = Exception("${x.runtimeType}: ${x.toString()}");
     }
 
-    /// "Hi all, new payload is here!"
+    // "Hi all, new payload is here!"
     notifyListeners();
   }
 }

@@ -2,6 +2,7 @@ import 'package:artic/stores/main_store.dart';
 import 'package:artic/ui/root.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:tuple/tuple.dart';
 
 enum Destination { artworks, artists, settings }
 
@@ -36,32 +37,22 @@ class SettingsRoute extends NavRoute {
 
 class NotFoundRoute extends NavRoute {}
 
-class NavStore extends ChangeNotifier {
-  Destination _selectedDestination = Destination.artworks;
-  String? _selectedArtworkId;
-  String? _selectedArtistId;
+class SelectiveListener<T> {
+  T? cache;
 
-  /// Define getters only as a matter of course,
-  /// because we want custom setters.
-  Destination get selectedDestination => _selectedDestination;
-  String? get selectedArtworkId => _selectedArtworkId;
-  String? get selectedArtistId => _selectedArtistId;
+  SelectiveListener({required this.selector, required this.onChange});
 
-  /// This is actually what we want:
-  /// setters that automatically invoke `notifyListeners()`
-  set selectedDestination(Destination destination) {
-    _selectedDestination = destination;
-    notifyListeners();
-  }
+  /// Just get the store from the outside scope.
+  final T Function() selector;
+  final void Function() onChange;
 
-  set selectedArtworkId(String? id) {
-    _selectedArtworkId = id;
-    notifyListeners();
-  }
-
-  set selectedArtistId(String? id) {
-    _selectedArtistId = id;
-    notifyListeners();
+  void selectivelyListen() {
+    final selected = selector();
+    if (selected != cache) {
+      cache = selected;
+      onChange();
+    }
+    // if they're equal, don't do anything.
   }
 }
 
@@ -69,6 +60,7 @@ class ArticRouterDelegate extends RouterDelegate<NavRoute>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<NavRoute> {
   /// The NavStore, a.k.a. navigation state.
   MainStore mainStore;
+  late SelectiveListener selectiveListener;
 
   /// I'm actually not sure why this has to be overridden, but let's let that slide for now.
   final GlobalKey<NavigatorState> navigatorKey;
@@ -81,7 +73,17 @@ class ArticRouterDelegate extends RouterDelegate<NavRoute>
     /// Both NavStore and ArticRouterDelegate extend ChangeNotifier,
     /// and this basically makes it so that any change in navStore
     /// causes ArticRouterDelegate to also notifyListeners.
-    mainStore.navState.addListener(notifyListeners);
+    // mainStore.addListener(navListen);
+    selectiveListener =
+        SelectiveListener<Tuple3<Destination, String?, String?>>(selector: () {
+      return Tuple3(mainStore.selectedDestination, mainStore.selectedArtworkId,
+          mainStore.selectedArtistId);
+    }, onChange: () {
+      notifyListeners();
+    });
+    mainStore.addListener(() {
+      selectiveListener.selectivelyListen();
+    });
   }
 
   /// This is considered an optional override,
@@ -91,18 +93,18 @@ class ArticRouterDelegate extends RouterDelegate<NavRoute>
   NavRoute? get currentConfiguration {
     /// We'll go through all the possible destinations
     /// in navStore, then determine we're looking at a specific entity or not.
-    switch (mainStore.navState.selectedDestination) {
+    switch (mainStore.selectedDestination) {
       case Destination.artworks:
-        if (mainStore.navState.selectedArtworkId != null) {
+        if (mainStore.selectedArtworkId != null) {
           /// ArtworkRoute is a subclass of NavRoute.
-          return ArtworkRoute(id: mainStore.navState.selectedArtworkId!);
+          return ArtworkRoute(id: mainStore.selectedArtworkId!);
         } else {
           return ArtworksRoute();
         }
       case Destination.artists:
-        if (mainStore.navState.selectedArtistId != null) {
+        if (mainStore.selectedArtistId != null) {
           /// Again, ArtistRoute is a subclass of NavRoute
-          return ArtistRoute(id: mainStore.navState.selectedArtistId!);
+          return ArtistRoute(id: mainStore.selectedArtistId!);
         } else {
           return ArtistsRoute();
         }
@@ -115,7 +117,7 @@ class ArticRouterDelegate extends RouterDelegate<NavRoute>
   Future<void> setNewRoutePath(NavRoute configuration) async {
     /// Because we've said all NavRoutes have destination,
     /// we can immediately set this value.
-    mainStore.navState.selectedDestination = configuration.destination;
+    mainStore.selectedDestination = configuration.destination;
 
     /// I know, if else if else if is really tedious,
     /// but switching on the runtimeType doesn't implicitly cast
@@ -123,13 +125,13 @@ class ArticRouterDelegate extends RouterDelegate<NavRoute>
     if (configuration is ArtworksRoute) {
       /// It's important to null this field because this is the only
       /// thing that makes Artworks and Artwork distinct from each other.
-      mainStore.navState.selectedArtworkId = null;
+      mainStore.selectedArtworkId = null;
     } else if (configuration is ArtworkRoute) {
-      mainStore.navState.selectedArtworkId = configuration.id;
+      mainStore.selectedArtworkId = configuration.id;
     } else if (configuration is ArtistsRoute) {
-      mainStore.navState.selectedArtistId = null;
+      mainStore.selectedArtistId = null;
     } else if (configuration is ArtistRoute) {
-      mainStore.navState.selectedArtistId = configuration.id;
+      mainStore.selectedArtistId = configuration.id;
     } else if (configuration is SettingsRoute) {
       /// Actually there's nothing SettingsRoute specific for now.
       /// But we'll keep it here just in case.
