@@ -187,30 +187,24 @@ class ArticRouterDelegate extends RouterDelegate<NavRoute>
   Widget build(BuildContext context) {
     /// We're going to use navStore a lot,
     /// so use ChangeNotifierProvider, passing in navStore.
-    return WillPopScope(
-        child: Navigator(
-          /// We initialized this earlier
-          key: navigatorKey,
+    return Navigator(
+      /// We initialized this earlier
+      key: navigatorKey,
 
-          /// Yes, just one page. `pages` needs to just be a list of `Page`s.
-          /// `MaterialPage` is a subclass of `Page`.
-          /// We're starting small by just making the child a Text Widget.
-          pages: [MaterialPage(child: Root())],
+      /// Yes, just one page. `pages` needs to just be a list of `Page`s.
+      /// `MaterialPage` is a subclass of `Page`.
+      /// We're starting small by just making the child a Text Widget.
+      pages: [MaterialPage(child: Root())],
 
-          /// This is actually entirely vestigial because
-          /// we're never going to pop here.
-          /// Our stack can only be one level deep.
-          /// We're keeping this here just in case we need it.
-          /// It does no real harm.
-          onPopPage: (route, result) {
-            print('android pop');
-            return route.didPop(result);
-          },
-        ),
-        onWillPop: () async {
-          print('hi?');
-          return false;
-        });
+      /// This is actually entirely vestigial because
+      /// we're never going to pop here.
+      /// Our stack can only be one level deep.
+      /// We're keeping this here just in case we need it.
+      /// It does no real harm.
+      onPopPage: (route, result) {
+        return route.didPop(result);
+      },
+    );
   }
 }
 

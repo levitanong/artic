@@ -111,7 +111,6 @@ class ArtworksRouterDelegate extends RouterDelegate<NavRoute>
             // dictating whether or not the detail view shows,
             // it naturally follows that we should set it to null
             // when we pop.
-            print("pop $route $result");
             mainStore.selectedArtworkId = null;
             return route.didPop(result);
           },

@@ -28,7 +28,30 @@ class _RootState extends State<Root> {
         /// Normally one would also specify an appbar here,
         /// but there's a better place to place an appbar.
         /// Right now, body just shows whatever destination is selected.
-        body: selectedDestination.screen,
+        body: WillPopScope(
+          child: selectedDestination.screen,
+          onWillPop: () async {
+            final result = await showDialog<bool>(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                      title: Text('Are you sure you want to quit?'),
+                      actions: [
+                        ElevatedButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(true);
+                            },
+                            child: Text('Quit')),
+                        ElevatedButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(false);
+                            },
+                            child: Text('Cancel'))
+                      ]);
+                });
+            return result ?? false;
+          },
+        ),
 
         /// Setting up the bottom bar.
         bottomNavigationBar: BottomNavigationBar(
