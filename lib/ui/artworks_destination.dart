@@ -14,7 +14,68 @@ class ArtworksDestination extends StatefulWidget {
 
 class _ArtworksDestinationState extends State<ArtworksDestination> {
   // For the navigator
+  late ArtworksRouterDelegate _routerDelegate;
   GlobalKey<NavigatorState>? get navigatorKey => GlobalKey<NavigatorState>();
+  ChildBackButtonDispatcher? _backButtonDispatcher;
+
+  @override
+  void initState() {
+    final mainStore = Provider.of<MainStore>(context, listen: false);
+    _routerDelegate = ArtworksRouterDelegate(mainStore);
+    super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Defer back button dispatching to the child router
+    _backButtonDispatcher = Router.of(context)
+        .backButtonDispatcher
+        ?.createChildBackButtonDispatcher();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    _backButtonDispatcher?.takePriority();
+    return Router(
+      routerDelegate: _routerDelegate,
+      backButtonDispatcher: _backButtonDispatcher,
+    );
+  }
+}
+
+class ArtworksRouterDelegate extends RouterDelegate<NavRoute>
+    with ChangeNotifier, PopNavigatorRouterDelegateMixin<NavRoute> {
+  MainStore mainStore;
+  late SelectiveListener selectiveListener;
+  final GlobalKey<NavigatorState> navigatorKey;
+  ArtworksRouterDelegate(this.mainStore)
+      : navigatorKey = GlobalKey<NavigatorState>() {
+    selectiveListener = SelectiveListener<MainStore, String?>(
+        store: mainStore,
+        selector: (MainStore store) {
+          return store.selectedArtworkId;
+        });
+    selectiveListener.addListener(notifyListeners);
+  }
+
+  // @override
+  // NavRoute? get currentConfiguration {
+  //   if (mainStore.selectedArtworkId != null) {
+  //     return ArtworkRoute(id: mainStore.selectedArtworkId!);
+  //   } else {
+  //     return ArtworksRoute();
+  //   }
+  // }
+
+  @override
+  Future<void> setNewRoutePath(NavRoute configuration) async {
+    // if (configuration is ArtworkRoute) {
+    //   mainStore.selectedArtworkId = configuration.id;
+    // } else if (configuration is ArtworksRoute) {
+    //   mainStore.selectedArtworkId = null;
+    // }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +111,7 @@ class _ArtworksDestinationState extends State<ArtworksDestination> {
             // dictating whether or not the detail view shows,
             // it naturally follows that we should set it to null
             // when we pop.
+            print("pop $route $result");
             mainStore.selectedArtworkId = null;
             return route.didPop(result);
           },

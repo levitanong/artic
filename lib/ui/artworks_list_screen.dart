@@ -63,6 +63,7 @@ class _ArtworksListScreenState extends State<ArtworksListScreen> {
                 return Card(
                   child: InkWell(
                     onTap: () {
+                      print("tapped item# $index");
                       // Obvious what this does.
                       // The important thing is we're using navStore.
                       mainStore.selectedArtworkId = artwork.id;
